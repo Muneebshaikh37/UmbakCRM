@@ -44,9 +44,13 @@ type MetadataEntityPropertyConfiguration<
               UnwrapWasRemovedInUpgrade<MetadataEntity<TMetadataName>[K]>
             >
         : boolean;
-    toCompare: boolean;
     isOverridable?: boolean;
-  };
+  } & (
+    | { toCompare: true }
+    // A change on a flagged property fails validation instead of being dropped.
+    // Unflagged ones stay silent: converters emit placeholder values for many.
+    | { toCompare: false; toReportDivergence?: true }
+  );
 };
 
 export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
@@ -1177,6 +1181,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     pageLayoutId: {
       toCompare: false,
+      toReportDivergence: true,
       toStringify: false,
       universalProperty: 'pageLayoutUniversalIdentifier',
     },
@@ -1348,6 +1353,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     pageLayoutId: {
       toCompare: false,
+      toReportDivergence: true,
       toStringify: false,
       universalProperty: 'pageLayoutUniversalIdentifier',
       isOverridable: true,
@@ -1424,6 +1430,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     pageLayoutId: {
       toCompare: false,
+      toReportDivergence: true,
       toStringify: false,
       universalProperty: 'pageLayoutUniversalIdentifier',
     },
@@ -1869,6 +1876,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     isSecret: {
       toCompare: false,
+      toReportDivergence: true,
       toStringify: false,
       universalProperty: undefined,
     },
@@ -2325,6 +2333,18 @@ export type MetadataEntityComparablePropertyName<T extends AllMetadataName> =
   FilterComparableKeys<
     (typeof ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME)[T]
   >;
+
+type FilterDivergenceReportedKeys<TConfig> = {
+  [P in keyof TConfig]: TConfig[P] extends { toReportDivergence: true }
+    ? P
+    : never;
+}[keyof TConfig];
+
+export type MetadataEntityDivergenceReportedPropertyName<
+  T extends AllMetadataName,
+> = FilterDivergenceReportedKeys<
+  (typeof ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME)[T]
+>;
 
 type FilterOverridableKeys<TConfig> = {
   [P in keyof TConfig]: TConfig[P] extends { isOverridable: true } ? P : never;
