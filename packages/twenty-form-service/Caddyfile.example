@@ -1,0 +1,9 @@
+crm.irishpayments.ie {
+    handle /form* {
+        reverse_proxy twenty-form:4000
+    }
+
+    handle {
+        reverse_proxy twenty-server:3000
+    }
+}

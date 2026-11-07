@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IrishPayments - Customer Application Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ip-green: #1C4B42;
+      --ip-green-light: #0C8665;
+      --ip-green-dark: #153b34;
+      --ip-blue: #1D59A8;
+      --ip-lime: #B4E717;
+      --ip-green-subtle: #e8f0ee;
+      --ip-green-glow: rgba(28, 75, 66, 0.15);
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-solid: #ffffff;
+      --surface-elevated: rgba(255, 255, 255, 0.88);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-focus: var(--ip-green);
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-tertiary: #aeaeb2;
+      --bg: #F6F5F2;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    /* Dark mode removed - light theme only */
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.47;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .brand-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .brand-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .wizard-nav {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      padding: 6px;
+      background: var(--surface);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .wizard-nav::-webkit-scrollbar { display: none; }
+
+    .wizard-dot {
+      flex-shrink: 0;
+      width: 32px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.3s ease, flex-grow 0.3s ease;
+    }
+
+    .wizard-dot.active {
+      background: var(--ip-green);
+      flex-grow: 1;
+    }
+
+    .wizard-dot.completed {
+      background: var(--ip-green-light);
+    }
+
+    .step-counter {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .section {
+      background: var(--surface);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+      animation: sectionIn 0.35s ease;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes sectionIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ip-green);
+      margin-bottom: 20px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: -12px 0 20px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .field-row.single { grid-template-columns: 1fr; }
+
+    .field { position: relative; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      transition: color 0.2s ease;
+    }
+
+    label .req {
+      color: var(--ip-green-light);
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--surface-elevated);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--ip-green);
+      box-shadow: 0 0 0 3px var(--ip-green-glow);
+      background: var(--surface-solid);
+    }
+
+    input.error, select.error {
+      border-color: #ff3b30;
+      box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .radio-group label, .checkbox-group label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-elevated);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .radio-group label:hover, .checkbox-group label:hover {
+      border-color: var(--ip-green);
+      background: var(--ip-green-subtle);
+    }
+
+    .radio-group input, .checkbox-group input {
+      width: auto;
+      padding: 0;
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: var(--ip-green);
+    }
+
+    .radio-group input:focus, .checkbox-group input:focus {
+      box-shadow: none;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .field-label .req {
+      color: var(--ip-green-light);
+      font-weight: 600;
+    }
+
+    .file-upload-item {
+      margin-bottom: 16px;
+    }
+
+    .file-upload-item label.file-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .file-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--surface-elevated);
+      transition: border-color 0.25s ease, background 0.25s ease, transform 0.15s ease;
+    }
+
+    .file-zone:hover {
+      border-color: var(--ip-green);
+      background: var(--ip-green-subtle);
+    }
+
+    .file-zone:active { transform: scale(0.98); }
+
+    .file-zone.drag-over {
+      border-color: var(--ip-green);
+      background: var(--ip-green-subtle);
+      border-style: solid;
+    }
+
+    .file-zone.has-file {
+      border-color: var(--ip-green-light);
+      border-style: solid;
+      background: var(--ip-green-subtle);
+    }
+
+    .file-zone input[type="file"] { display: none; }
+
+    .file-zone p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .file-zone .hint {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    .file-zone .file-name-display {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ip-green);
+      margin-top: 4px;
+    }
+
+    .terms-box {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 20px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .terms-box h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 16px 0 8px;
+    }
+
+    .terms-box h3:first-child { margin-top: 0; }
+
+    .declaration-text {
+      padding: 16px;
+      background: var(--ip-green-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 14px 24px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .nav-btn:hover { border-color: var(--ip-green); }
+    .nav-btn:active { transform: scale(0.98); }
+
+    .nav-btn.primary {
+      background: linear-gradient(135deg, var(--ip-green), var(--ip-green-light));
+      color: white;
+      border: none;
+      box-shadow: 0 2px 8px rgba(28, 75, 66, 0.3);
+    }
+
+    .nav-btn.primary:hover {
+      box-shadow: 0 4px 16px rgba(28, 75, 66, 0.4);
+    }
+
+    .nav-btn.primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status-bar {
+      text-align: center;
+      margin-top: 16px;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .status-bar.success {
+      display: block;
+      background: rgba(52, 199, 89, 0.12);
+      color: #34c759;
+      border: 1px solid rgba(52, 199, 89, 0.2);
+    }
+
+    .status-bar.error {
+      display: block;
+      background: rgba(255, 59, 48, 0.1);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.15);
+    }
+
+    .status-bar.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--ip-green-subtle);
+      color: var(--ip-green);
+      border: 1px solid rgba(10, 124, 66, 0.15);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--ip-green-glow);
+      border-top-color: var(--ip-green);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-check {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px;
+      text-align: center;
+      animation: successFadeIn 0.5s ease;
+    }
+
+    .success-check.visible { display: flex; }
+
+    @keyframes successFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--ip-green), var(--ip-green-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(28, 75, 66, 0.3);
+    }
+
+    .success-icon svg {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .success-check h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .success-check p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 380px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .footer a {
+      color: var(--ip-green);
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 24px 16px 48px; }
+      .brand-header h1 { font-size: 26px; }
+      .field-row { grid-template-columns: 1fr; }
+      .section { padding: 20px; border-radius: var(--radius-md); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section { animation: none; transition: none; }
+      .nav-btn { transition: opacity 0.2s ease; transform: none !important; }
+      .file-zone { transition: none; transform: none !important; }
+      .success-check { animation: none; }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .section, .wizard-nav { background: var(--surface-solid); backdrop-filter: none; }
+      input, select, textarea { backdrop-filter: none; background: var(--surface-solid); }
+      .status-bar { backdrop-filter: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand-header">
+      <div class="brand-logo">
+        <img src="logo.png" alt="Irish Payments" style="height: 80px; width: auto; max-width: 100%;">
+      </div>
+      <h1>Customer Application Form</h1>
+      <p>Complete your application for EPOS and payment services</p>
+    </div>
+
+    <div class="wizard-nav" id="wizardNav"></div>
+    <div class="step-counter" id="stepCounter"></div>
+
+    <form id="applicationForm" novalidate>
+
+      <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true" tabindex="-1">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" autocomplete="off" tabindex="-1">
+        <label for="faxNumber">Fax Number</label>
+        <input type="text" id="faxNumber" name="faxNumber" autocomplete="off" tabindex="-1">
+      </div>
+
+      <!-- Section 2: Agent Details -->
+      <div class="section" data-step="0" data-title="Agent Details">
+        <h2>Agent Details (Office Use Only)</h2>
+        <div class="field-row single">
+          <div class="field">
+            <label>Seller's Email <span class="req">*</span></label>
+            <input type="email" name="sellerEmail" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Business Details -->
+      <div class="section" data-step="1" data-title="Business Details">
+        <h2>Business Details</h2>
+        <div class="field-row single">
+          <div class="field">
+            <label>Trading Name (As on the receipt) <span class="req">*</span></label>
+            <input type="text" name="tradingName" required>
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>LTD / Sole Trader Name <span class="req">*</span></label>
+            <input type="text" name="ltdName" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>CRO Number (If Applicable)</label>
+            <input type="text" name="croNumber">
+          </div>
+          <div class="field">
+            <label>VAT (If VAT Registered)</label>
+            <input type="text" name="vatNumber">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Business Address <span class="req">*</span></label>
+            <input type="text" name="businessAddress" required placeholder="Full trading address">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <span class="field-label">Industry Sector <span class="req">*</span></span>
+            <div class="radio-group">
+              <label><input type="radio" name="industrySector" value="Hospitality" required> Hospitality</label>
+              <label><input type="radio" name="industrySector" value="Retail"> Retail</label>
+              <label><input type="radio" name="industrySector" value="Services"> Services</label>
+              <label><input type="radio" name="industrySector" value="Other"> Other</label>
+            </div>
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Industry Sector - Subcategory</label>
+            <input type="text" name="industrySubcategory" placeholder="e.g. Restaurant, Pub, Salon">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Primary Contact -->
+      <div class="section" data-step="2" data-title="Primary Contact">
+        <h2>Primary / Owner Contact Details</h2>
+        <div class="field-row single">
+          <div class="field">
+            <label>Signatory's Full Name <span class="req">*</span></label>
+            <input type="text" name="signatoryName" required>
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Job Title / Position <span class="req">*</span></label>
+            <input type="text" name="jobTitle" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" name="phone" required value="+353" placeholder="+353 XXX XXX XXXX">
+          </div>
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" name="email" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Location Contact -->
+      <div class="section" data-step="3" data-title="Location Contact">
+        <h2>Location Contact Details</h2>
+        <p class="section-desc">If different from primary contact</p>
+        <div class="field-row single">
+          <div class="field">
+            <label>Contact Full Name</label>
+            <input type="text" name="locationContactName">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Job Title / Position</label>
+            <input type="text" name="locationJobTitle">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Mobile Number</label>
+            <input type="tel" name="locationPhone" value="+353" placeholder="+353 XXX XXX XXXX">
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" name="locationEmail" placeholder="Must differ from primary">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Location Address</label>
+            <input type="text" name="locationAddress" placeholder="Full location address">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 6: Products & Services -->
+      <div class="section" data-step="4" data-title="Products & Services">
+        <h2>Products & Services</h2>
+        <div class="field-row single">
+          <div class="field">
+            <label>Number of Locations <span class="req">*</span></label>
+            <input type="number" name="numberOfLocations" min="1" required>
+          </div>
+        </div>
+
+        <span class="field-label">Users per Location <span class="req">*</span></span>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="usersPerLocation" value="Owner Required"> Owner Required</label>
+          <label><input type="checkbox" name="usersPerLocation" value="Manager"> Manager</label>
+          <label><input type="checkbox" name="usersPerLocation" value="1-2 Cashiers"> 1-2 Cashiers</label>
+          <label><input type="checkbox" name="usersPerLocation" value="2-4 Cashiers"> 2-4 Cashiers</label>
+          <label><input type="checkbox" name="usersPerLocation" value="4+ Cashiers"> 4+ Cashiers</label>
+        </div>
+
+        <span class="field-label">Hardware Requirement (One-Off Cost) <span class="req">*</span></span>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="hardwareRequirement" value="Pack 1 Single Screen+Printer+Cash Drawer €799+VAT"> Pack 1: Single Screen + Printer + Cash Drawer - &euro;799+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Pack 2 Single Screen+Printer+Cash Drawer+Scanner €849+VAT"> Pack 2: Single Screen + Printer + Cash Drawer + Scanner - &euro;849+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Dual Secondary Screen 11.6in €79+VAT"> Dual Secondary Screen 11.6" Add &euro;79+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Extra Printer €79+VAT"> Extra Printer Add &euro;79+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Extra Barcode Scanner €79+VAT"> Extra Barcode Scanner Add &euro;79+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Kitchen Display €119+VAT"> Kitchen Display Add &euro;119+VAT</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Self Serving Kiosk - Not Available"> Self Serving Kiosk - Not Available</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Self Checkout - Not Available"> Self Checkout - Not Available</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Weighing Scale - Not Available"> Weighing Scale - Not Available</label>
+          <label><input type="checkbox" name="hardwareRequirement" value="Other"> Other</label>
+        </div>
+
+        <span class="field-label">Payment Processing (Separate Application Required) <span class="req">*</span></span>
+        <div class="radio-group">
+          <label><input type="radio" name="paymentProcessing" value="AIBMS Pax A920" required> AIBMS Pax A920 - Rental &euro;20+VAT + Transaction Costs</label>
+          <label><input type="radio" name="paymentProcessing" value="DOJO Pax A920"> DOJO Pax A920 - Rental &euro;20+VAT + Transaction Costs</label>
+          <label><input type="radio" name="paymentProcessing" value="MyPos N95"> MyPos N95 - Rental &euro;20+VAT + Transaction Costs</label>
+          <label><input type="radio" name="paymentProcessing" value="BOIPA Pax A920 Pro"> BOIPA Pax A920 Pro - Rental &euro;20+VAT + Transaction Costs</label>
+          <label><input type="radio" name="paymentProcessing" value="WorldPay DX8000"> WorldPay DX8000 - Rental &euro;20+VAT + Transaction Costs</label>
+        </div>
+
+        <span class="field-label">Preferred Operating System <span class="req">*</span></span>
+        <div class="radio-group">
+          <label><input type="radio" name="preferredOS" value="Windows" required> Windows</label>
+          <label><input type="radio" name="preferredOS" value="Android"> Android</label>
+        </div>
+
+        <span class="field-label">Software Requirement <span class="req">*</span></span>
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="softwareRequirement" value="Multi Location"> Multi Location</label>
+          <label><input type="checkbox" name="softwareRequirement" value="Online Ordering"> Online Ordering</label>
+          <label><input type="checkbox" name="softwareRequirement" value="Online/eCommerce Integration"> Online / eCommerce Integration</label>
+          <label><input type="checkbox" name="softwareRequirement" value="Card payment integration"> Card Payment Integration</label>
+          <label><input type="checkbox" name="softwareRequirement" value="Cloud Base Access"> Cloud Base Access</label>
+          <label><input type="checkbox" name="softwareRequirement" value="Other"> Other</label>
+        </div>
+      </div>
+
+      <!-- Section 7: Billing & Payment -->
+      <div class="section" data-step="5" data-title="Billing & Payment">
+        <h2>Billing & Payment Details</h2>
+
+        <span class="field-label">Software Licence Fee (Monthly) &euro;59 + VAT <span class="req">*</span></span>
+        <div class="radio-group">
+          <label><input type="radio" name="softwareLicence" value="Software Only (Monthly) €59+VAT" required> Software Only (Monthly) &euro;59+VAT</label>
+          <label><input type="radio" name="softwareLicence" value="Software (Monthly) €59 + Pack 1 Hardware (One-Off) €799"> Software (Monthly) &euro;59 + Pack 1 Hardware (One-Off) &euro;799</label>
+          <label><input type="radio" name="softwareLicence" value="Software (Monthly) €59 + Pack 2 Hardware (One-Off) €849"> Software (Monthly) &euro;59 + Pack 2 Hardware (One-Off) &euro;849</label>
+          <label><input type="radio" name="softwareLicence" value="Software (Monthly) €99 + Pack 1 Hardware (One-Off) €0"> Software (Monthly) &euro;99 + Pack 1 Hardware (One-Off) &euro;0</label>
+          <label><input type="radio" name="softwareLicence" value="Software (Monthly) €109 + Pack 2 Hardware (One-Off) €0"> Software (Monthly) &euro;109 + Pack 2 Hardware (One-Off) &euro;0</label>
+          <label><input type="radio" name="softwareLicence" value="Customised Offer (Please Refer to Manager)"> Customised Offer (Please Refer to Manager)</label>
+          <label><input type="radio" name="softwareLicence" value="Other"> Other</label>
+        </div>
+
+        <span class="field-label">Installation and Programming (One-Off Cost) <span class="req">*</span></span>
+        <div class="radio-group">
+          <label><input type="radio" name="installationCost" value="Small Takeaway €200+VAT" required> Small Takeaway &euro;200+VAT</label>
+          <label><input type="radio" name="installationCost" value="Large Takeaway €300+VAT"> Large Takeaway &euro;300+VAT</label>
+          <label><input type="radio" name="installationCost" value="Retail Shop €250+VAT"> Retail Shop &euro;250+VAT</label>
+          <label><input type="radio" name="installationCost" value="Large Retail €450+VAT"> Large Retail &euro;450+VAT</label>
+          <label><input type="radio" name="installationCost" value="Services €100+VAT"> Services &euro;100+VAT</label>
+          <label><input type="radio" name="installationCost" value="Free"> Free</label>
+          <label><input type="radio" name="installationCost" value="Other"> Other</label>
+        </div>
+      </div>
+
+      <!-- Section 9: Documents Upload -->
+      <div class="section" data-step="6" data-title="Documents">
+        <h2>Documents Upload</h2>
+        <p class="section-desc">All documents must be valid and within 3 months</p>
+
+        <div class="file-upload-item">
+          <label class="file-label">ID</label>
+          <div class="file-zone" data-field="docId">
+            <p>Drop file or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docId" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Proof of Bank (POB)</label>
+          <div class="file-zone" data-field="docProofOfBank">
+            <p>Drop file or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docProofOfBank" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Proof of Trading Address (POTA)</label>
+          <div class="file-zone" data-field="docTradingAddress">
+            <p>Drop file or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docTradingAddress" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Proof of Home Address (POHA)</label>
+          <div class="file-zone" data-field="docHomeAddress">
+            <p>Drop file or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docHomeAddress" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Shop Photos In & Out</label>
+          <div class="file-zone" data-field="docShopPhotos">
+            <p>Drop files or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docShopPhotos" accept=".pdf,.jpg,.jpeg,.png" multiple>
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Existing Payment / Switcher Statement</label>
+          <div class="file-zone" data-field="docPaymentStatement">
+            <p>Drop file or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docPaymentStatement" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
+
+        <div class="file-upload-item">
+          <label class="file-label">Menu / Items / Prices / Logo, etc</label>
+          <div class="file-zone" data-field="docMenu">
+            <p>Drop files or click to browse</p>
+            <p class="hint">PDF, JPG, PNG up to 10MB</p>
+            <input type="file" name="docMenu" accept=".pdf,.jpg,.jpeg,.png" multiple>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 10: Terms and Conditions -->
+      <div class="section" data-step="7" data-title="Terms & Conditions">
+        <h2>Terms and Conditions</h2>
+        <div class="terms-box">
+          <p>These Terms and Conditions ('Terms') govern the supply of EPOS hardware, software and related services by Umbak Technologies Ltd Trading As Irish Payments ('the Company', 'we', 'us') to the customer named in this Application Form ('the Customer', 'you'). By signing this form, you agree to be bound by these Terms.</p>
+
+          <h3>1. Definitions</h3>
+          <p>In these Terms, 'Equipment' means any EPOS hardware supplied to the Customer, including but not limited to terminals, card readers, receipt printers, and barcode scanners. 'Software' means the point-of-sale software, licences and associated updates provided by the Company. 'Services' means installation, training, support, maintenance and any other services described in this Agreement.</p>
+
+          <h3>2. Application and Acceptance</h3>
+          <p>This Application Form does not constitute a binding agreement until it has been reviewed and accepted in writing by the Company. The Company reserves the right to decline any application at its sole discretion, including where credit or identity checks are not satisfactory.</p>
+
+          <h3>3. Equipment and Software</h3>
+          <p>Title to any purchased Equipment passes to the Customer only once payment has been received in full. Where Equipment is leased or rented, title remains with the Company at all times. The Software is licensed, not sold, to the Customer for use solely in connection with the Customer's business for the duration of the agreement.</p>
+
+          <h3>4. Fees and Payment</h3>
+          <p>The Customer agrees to pay all set-up fees, monthly subscription fees, transaction fees and any other charges as set out in the Company's current pricing schedule provided separately. Fees are payable by Direct Debit unless otherwise agreed in writing. Late payments may incur interest and/or suspension of Services.</p>
+
+          <h3>5. Contract Term and Renewal</h3>
+          <p>Unless otherwise stated, this Agreement commences on the go-live date and continues for the minimum term specified in the pricing schedule. Thereafter it will renew on a rolling basis unless either party gives written notice in accordance with Clause 8 (Termination).</p>
+
+          <h3>6. Installation and Training</h3>
+          <p>The Company will arrange installation and basic staff training at a mutually agreed date and cost. The Customer is responsible for ensuring adequate power, internet connectivity and a suitable environment for the Equipment prior to installation.</p>
+
+          <h3>7. Support and Maintenance</h3>
+          <p>The Company will provide reasonable technical support during standard business hours, or as otherwise specified in the service level agreement. Support does not cover faults caused by misuse, unauthorised modification, or third-party interference with the Equipment or Software.</p>
+
+          <h3>8. Termination</h3>
+          <p>Either party may terminate this Agreement by giving the notice period specified in the pricing schedule. The Company may terminate immediately if the Customer breaches these Terms, becomes insolvent, or fails to make payment when due. On termination, any leased Equipment must be returned in good working order within 14 days in its original packaging.</p>
+
+          <h3>9. Data Protection</h3>
+          <p>The Company will process personal and transactional data collected through the EPOS system in accordance with applicable data protection law, including UK GDPR/GDPR as relevant, and its Privacy Policy, a copy of which is available on request.</p>
+
+          <h3>10. Liability</h3>
+          <p>The Company's total liability arising from this Agreement is limited to the fees paid by the Customer in the twelve (12) months preceding the claim, except in respect of death, personal injury, or fraud, for which liability is not limited. The Company shall not be liable for indirect or consequential losses, including loss of profits or business interruption.</p>
+
+          <h3>11. Warranties</h3>
+          <p>The Company warrants that the Equipment will be free from material defects for the manufacturer's standard warranty period. This does not cover damage caused by accident, misuse, or unauthorised repair.</p>
+
+          <h3>12. Force Majeure</h3>
+          <p>Neither party shall be liable for any failure or delay in performance caused by circumstances beyond its reasonable control, including but not limited to power failures, internet outages, natural disasters, or third-party supplier failures.</p>
+
+          <h3>13. Governing Law</h3>
+          <p>These Terms are governed by and construed in accordance with the laws of Republic of Ireland, and the parties submit to the exclusive jurisdiction of the courts of Republic of Ireland.</p>
+
+          <h3>14. Amendments</h3>
+          <p>The Company may update these Terms from time to time. Customers will be given reasonable written notice of any material changes before they take effect.</p>
+        </div>
+      </div>
+
+      <!-- Section 11: Declaration & Signature -->
+      <div class="section" data-step="8" data-title="Declaration">
+        <h2>Declaration and Signature</h2>
+        <div class="declaration-text">
+          I confirm that the information provided in this Application Form is accurate and complete to the best of my knowledge. I have read, understood, and agree to be bound by the Terms and Conditions set out above on behalf of the business named in this form. I am over 18 years old and eligible to sign a contract.
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Print Name <span class="req">*</span></label>
+            <input type="text" name="printName" required>
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Signature <span class="req">*</span></label>
+            <input type="text" name="signature" required placeholder="Type your full name as signature">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="signatureDate" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons" id="navButtons">
+        <button type="button" class="nav-btn" id="prevBtn" onclick="prevStep()">Back</button>
+        <button type="button" class="nav-btn primary" id="nextBtn" onclick="nextStep()">Continue</button>
+      </div>
+      <div class="status-bar" id="status"></div>
+    </form>
+
+    <div class="success-check" id="successView">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Application Received</h2>
+      <p>Thank you for applying. Our team will review your application and be in touch within 1-2 business days.</p>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2026 IrishPayments &middot; <a href="https://irishpayments.ie">irishpayments.ie</a></p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('applicationForm');
+    const statusEl = document.getElementById('status');
+    const successView = document.getElementById('successView');
+    const wizardNav = document.getElementById('wizardNav');
+    const stepCounter = document.getElementById('stepCounter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const sections = Array.from(form.querySelectorAll('.section[data-step]'));
+    const totalSteps = sections.length;
+    let currentStep = 0;
+
+    function initWizard() {
+      for (let i = 0; i < totalSteps; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'wizard-dot';
+        dot.onclick = () => goToStep(i);
+        wizardNav.appendChild(dot);
+      }
+      renderStep();
+    }
+
+    function renderStep() {
+      sections.forEach((s, i) => {
+        s.classList.toggle('active', i === currentStep);
+      });
+
+      const dots = wizardNav.querySelectorAll('.wizard-dot');
+      dots.forEach((d, i) => {
+        d.className = 'wizard-dot';
+        if (i === currentStep) d.classList.add('active');
+        else if (i < currentStep) d.classList.add('completed');
+      });
+
+      const title = sections[currentStep].dataset.title;
+      stepCounter.textContent = `Step ${currentStep + 1} of ${totalSteps} - ${title}`;
+
+      prevBtn.style.display = currentStep === 0 ? 'none' : '';
+      nextBtn.textContent = currentStep === totalSteps - 1 ? 'Submit Application' : 'Continue';
+    }
+
+    function goToStep(step) {
+      if (step < 0 || step >= totalSteps) return;
+      currentStep = step;
+      renderStep();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep() {
+      goToStep(currentStep - 1);
+    }
+
+    function nextStep() {
+      const section = sections[currentStep];
+      const requiredInputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+      let valid = true;
+      let firstInvalid = null;
+
+      requiredInputs.forEach(input => {
+        if (input.type === 'radio') {
+          const group = section.querySelectorAll(`input[name="${input.name}"]`);
+          const checked = Array.from(group).some(r => r.checked);
+          if (!checked) {
+            valid = false;
+            if (!firstInvalid) firstInvalid = input;
+          }
+        } else {
+          let val = input.value.trim();
+          let empty = !val;
+          if (input.type === 'tel' && val.replace(/[\s+\-()]/g, '').length < 6) empty = true;
+          if (input.type === 'email' && !input.validity.valid) empty = true;
+          if (empty) {
+            input.classList.add('error');
+            valid = false;
+            if (!firstInvalid) firstInvalid = input;
+          } else {
+            input.classList.remove('error');
+          }
+        }
+      });
+
+      if (!valid) {
+        showStatus('Please fill in all required fields.', 'error');
+        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      statusEl.className = 'status-bar';
+      statusEl.style.display = 'none';
+
+      if (currentStep === totalSteps - 1) {
+        submitForm();
+      } else {
+        goToStep(currentStep + 1);
+      }
+    }
+
+    async function submitForm() {
+      nextBtn.disabled = true;
+      showStatus('Submitting your application...', 'loading');
+
+      const formPayload = new FormData();
+      const data = {};
+
+      new FormData(form).forEach((val, key) => {
+        if (key.startsWith('doc')) return;
+        if (data[key]) {
+          if (Array.isArray(data[key])) data[key].push(val);
+          else data[key] = [data[key], val];
+        } else {
+          data[key] = val;
+        }
+      });
+
+      formPayload.append('formData', JSON.stringify(data));
+
+      const fileInputs = form.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        if (input.files.length > 0) {
+          Array.from(input.files).forEach(file => {
+            formPayload.append(input.name, file);
+          });
+        }
+      });
+
+      try {
+        const response = await fetch('api/submit', { method: 'POST', body: formPayload });
+        const result = await response.json();
+
+        if (result.success) {
+          statusEl.className = 'status-bar';
+          statusEl.style.display = 'none';
+          form.style.display = 'none';
+          wizardNav.style.display = 'none';
+          stepCounter.style.display = 'none';
+          successView.classList.add('visible');
+          successView.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          showStatus(result.error || 'Something went wrong. Please try again.', 'error');
+          nextBtn.disabled = false;
+        }
+      } catch (err) {
+        showStatus('Network error. Please check your connection and try again.', 'error');
+        nextBtn.disabled = false;
+      }
+    }
+
+    function showStatus(message, type) {
+      if (type === 'loading') {
+        statusEl.innerHTML = '<div class="spinner"></div>' + message;
+      } else {
+        statusEl.textContent = message;
+      }
+      statusEl.className = 'status-bar ' + type;
+    }
+
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+      input.addEventListener('focus', () => input.classList.remove('error'));
+    });
+
+    document.querySelectorAll('.file-zone').forEach(zone => {
+      const input = zone.querySelector('input[type="file"]');
+
+      zone.addEventListener('click', (e) => {
+        if (e.target !== input) input.click();
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('drag-over');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        input.files = e.dataTransfer.files;
+        input.dispatchEvent(new Event('change'));
+      });
+
+      input.addEventListener('change', () => {
+        const existing = zone.querySelector('.file-name-display');
+        if (existing) existing.remove();
+
+        if (input.files.length > 0) {
+          zone.classList.add('has-file');
+          const names = Array.from(input.files).map(f => f.name).join(', ');
+          const display = document.createElement('p');
+          display.className = 'file-name-display';
+          display.textContent = names;
+          zone.appendChild(display);
+        } else {
+          zone.classList.remove('has-file');
+        }
+      });
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = form.querySelector('input[name="signatureDate"]');
+    if (dateInput) dateInput.value = today;
+
+    initWizard();
+  </script>
+</body>
+</html>
