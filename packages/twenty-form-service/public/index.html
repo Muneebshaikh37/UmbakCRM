@@ -206,8 +206,25 @@
       background: var(--surface-solid);
     }
 
-    input.error, select.error {
+    input.error, select.error, textarea.error {
       border-color: #ff3b30;
+      box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: #ff3b30;
+      margin-top: 4px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .error-msg.visible { display: block; }
+
+    .radio-group.error-group, .checkbox-group.error-group {
+      border: 1.5px solid #ff3b30;
+      border-radius: var(--radius-sm);
+      padding: 4px;
       box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
     }
 
@@ -977,37 +994,155 @@
       goToStep(currentStep - 1);
     }
 
+    const fieldHints = {
+      sellerEmail: { msg: 'Enter a valid email address, e.g. agent@irishpayments.ie', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      tradingName: { msg: 'Enter the business name as it appears on receipts' },
+      ltdName: { msg: 'Enter the registered company or sole trader name' },
+      croNumber: { msg: 'CRO number should be 6 digits, e.g. 123456', validate: v => !v || /^\d{4,8}$/.test(v) },
+      vatNumber: { msg: 'VAT number format: IE1234567X or IE1234567XX', validate: v => !v || /^(IE)?\d{7,8}[A-Z]{1,2}$/i.test(v.replace(/\s/g, '')) },
+      businessAddress: { msg: 'Enter the full trading address including city and county' },
+      signatoryName: { msg: 'Enter your full legal name (first and last name)', validate: v => v.trim().split(/\s+/).length >= 2 },
+      jobTitle: { msg: 'Enter your role, e.g. Owner, Director, Manager' },
+      phone: { msg: 'Enter a valid Irish phone number, e.g. +353 87 123 4567', validate: v => v.replace(/[\s+\-()]/g, '').length >= 10 },
+      email: { msg: 'Enter a valid email address, e.g. name@example.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      locationPhone: { msg: 'Enter a valid phone number, e.g. +353 87 123 4567', validate: v => !v || v === '+353' || v.replace(/[\s+\-()]/g, '').length >= 10 },
+      locationEmail: { msg: 'Enter a valid email address different from primary contact', validate: v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      numberOfLocations: { msg: 'Enter the number of business locations (minimum 1)', validate: v => parseInt(v) >= 1 },
+      printName: { msg: 'Type your full name exactly as it should appear' },
+      signature: { msg: 'Type your full legal name as your electronic signature' },
+      signatureDate: { msg: 'Select today\'s date' },
+      industrySector: { msg: 'Please select your industry sector', isGroup: true },
+      usersPerLocation: { msg: 'Select at least one option for users per location', isGroup: true, isCheckbox: true },
+      hardwareRequirement: { msg: 'Select at least one hardware option', isGroup: true, isCheckbox: true },
+      paymentProcessing: { msg: 'Please select a payment processing option', isGroup: true },
+      preferredOS: { msg: 'Please select your preferred operating system', isGroup: true },
+      softwareRequirement: { msg: 'Select at least one software feature', isGroup: true, isCheckbox: true },
+      softwareLicence: { msg: 'Please select a software licence plan', isGroup: true },
+      installationCost: { msg: 'Please select an installation option', isGroup: true },
+    };
+
+    function showFieldError(input, msg) {
+      let errorEl = input.closest('.field')?.querySelector('.error-msg');
+      if (!errorEl) {
+        const hint = fieldHints[input.name];
+        if (hint && hint.isGroup) {
+          const group = input.closest('.radio-group, .checkbox-group');
+          if (group) {
+            group.classList.add('error-group');
+            errorEl = group.nextElementSibling;
+            if (!errorEl || !errorEl.classList.contains('error-msg')) {
+              errorEl = document.createElement('div');
+              errorEl.className = 'error-msg';
+              group.parentNode.insertBefore(errorEl, group.nextSibling);
+            }
+          }
+        }
+        if (!errorEl) return;
+      }
+      errorEl.textContent = msg;
+      errorEl.classList.add('visible');
+    }
+
+    function clearFieldError(input) {
+      input.classList.remove('error');
+      const errorEl = input.closest('.field')?.querySelector('.error-msg');
+      if (errorEl) errorEl.classList.remove('visible');
+      const group = input.closest('.radio-group, .checkbox-group');
+      if (group) {
+        group.classList.remove('error-group');
+        const groupErr = group.nextElementSibling;
+        if (groupErr && groupErr.classList.contains('error-msg')) groupErr.classList.remove('visible');
+      }
+    }
+
+    function validateInput(input) {
+      const hint = fieldHints[input.name] || {};
+      const val = input.value.trim();
+
+      if (hint.isGroup) {
+        const section = input.closest('.section');
+        const group = section.querySelectorAll(`input[name="${input.name}"]`);
+        const checked = Array.from(group).some(r => r.checked);
+        if (!checked) {
+          showFieldError(input, hint.msg);
+          return false;
+        }
+        clearFieldError(input);
+        return true;
+      }
+
+      if (input.required && !val) {
+        input.classList.add('error');
+        showFieldError(input, hint.msg || 'This field is required');
+        return false;
+      }
+
+      if (hint.validate && val && !hint.validate(val)) {
+        input.classList.add('error');
+        showFieldError(input, hint.msg);
+        return false;
+      }
+
+      if (input.type === 'tel' && input.required && val.replace(/[\s+\-()]/g, '').length < 10) {
+        input.classList.add('error');
+        showFieldError(input, hint.msg || 'Enter a valid phone number');
+        return false;
+      }
+
+      if (input.type === 'email' && val && !input.validity.valid) {
+        input.classList.add('error');
+        showFieldError(input, hint.msg || 'Enter a valid email address');
+        return false;
+      }
+
+      clearFieldError(input);
+      return true;
+    }
+
     function nextStep() {
       const section = sections[currentStep];
       const requiredInputs = section.querySelectorAll('input[required], select[required], textarea[required]');
       let valid = true;
       let firstInvalid = null;
+      const validated = new Set();
 
       requiredInputs.forEach(input => {
-        if (input.type === 'radio') {
-          const group = section.querySelectorAll(`input[name="${input.name}"]`);
-          const checked = Array.from(group).some(r => r.checked);
-          if (!checked) {
-            valid = false;
-            if (!firstInvalid) firstInvalid = input;
+        if (validated.has(input.name)) return;
+        validated.add(input.name);
+
+        if (!validateInput(input)) {
+          valid = false;
+          if (!firstInvalid) firstInvalid = input;
+        }
+      });
+
+      const checkboxGroups = section.querySelectorAll('.checkbox-group');
+      checkboxGroups.forEach(group => {
+        const inputs = group.querySelectorAll('input[type="checkbox"]');
+        if (inputs.length === 0) return;
+        const name = inputs[0].name;
+        if (validated.has(name)) return;
+        validated.add(name);
+        const hint = fieldHints[name];
+        if (!hint || !hint.isCheckbox) return;
+        const checked = Array.from(inputs).some(c => c.checked);
+        if (!checked) {
+          valid = false;
+          group.classList.add('error-group');
+          let errorEl = group.nextElementSibling;
+          if (!errorEl || !errorEl.classList.contains('error-msg')) {
+            errorEl = document.createElement('div');
+            errorEl.className = 'error-msg';
+            group.parentNode.insertBefore(errorEl, group.nextSibling);
           }
-        } else {
-          let val = input.value.trim();
-          let empty = !val;
-          if (input.type === 'tel' && val.replace(/[\s+\-()]/g, '').length < 6) empty = true;
-          if (input.type === 'email' && !input.validity.valid) empty = true;
-          if (empty) {
-            input.classList.add('error');
-            valid = false;
-            if (!firstInvalid) firstInvalid = input;
-          } else {
-            input.classList.remove('error');
-          }
+          errorEl.textContent = hint.msg;
+          errorEl.classList.add('visible');
+          if (!firstInvalid) firstInvalid = inputs[0];
         }
       });
 
       if (!valid) {
-        showStatus('Please fill in all required fields.', 'error');
+        showStatus('Please correct the highlighted fields before continuing.', 'error');
         if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
@@ -1081,8 +1216,33 @@
       statusEl.className = 'status-bar ' + type;
     }
 
+    document.querySelectorAll('.field').forEach(field => {
+      const input = field.querySelector('input, select, textarea');
+      if (input && !field.querySelector('.error-msg')) {
+        const errDiv = document.createElement('div');
+        errDiv.className = 'error-msg';
+        field.appendChild(errDiv);
+      }
+    });
+
     document.querySelectorAll('input, select, textarea').forEach(input => {
-      input.addEventListener('focus', () => input.classList.remove('error'));
+      input.addEventListener('focus', () => clearFieldError(input));
+      input.addEventListener('blur', () => {
+        if (input.classList.contains('error') || (input.value.trim() && fieldHints[input.name])) {
+          validateInput(input);
+        }
+      });
+    });
+
+    document.querySelectorAll('.checkbox-group input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const group = cb.closest('.checkbox-group');
+        if (group && group.classList.contains('error-group')) {
+          group.classList.remove('error-group');
+          const errEl = group.nextElementSibling;
+          if (errEl && errEl.classList.contains('error-msg')) errEl.classList.remove('visible');
+        }
+      });
     });
 
     document.querySelectorAll('.file-zone').forEach(zone => {
