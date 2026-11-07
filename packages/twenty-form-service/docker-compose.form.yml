@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  twenty-form:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      TWENTY_API_URL: http://twenty-server:3000/api
+      TWENTY_API_KEY: ${TWENTY_API_KEY}
+      PORT: "4000"
+      BASE_PATH: /form
+    restart: unless-stopped
+    networks:
+      - twenty-network
+
+networks:
+  twenty-network:
+    external: true
