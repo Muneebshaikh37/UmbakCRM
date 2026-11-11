@@ -10,7 +10,7 @@ type BaseHeadProps = {
 export const BaseHead = ({ i18n }: BaseHeadProps) => {
   return (
     <Head>
-      <title>{i18n._('Twenty email')}</title>
+      <title>{i18n._('UmbakCRM')}</title>
       <Font
         fontFamily={canvasTheme.font.family}
         fallbackFontFamily="sans-serif"
