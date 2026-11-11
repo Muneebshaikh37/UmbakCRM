@@ -18,45 +18,45 @@ export const Footer = ({ i18n }: FooterProps) => {
         <Column>
           <ShadowText>
             <Link
-              href="https://twenty.com/"
+              href="https://irishpayments.ie/"
               value={i18n._('Website')}
-              aria-label={i18n._("Visit Twenty's website")}
+              aria-label={i18n._("Visit Irish Payments website")}
             />
           </ShadowText>
         </Column>
         <Column>
           <ShadowText>
             <Link
-              href="https://github.com/twentyhq/twenty"
-              value={i18n._('Github')}
-              aria-label={i18n._("Visit Twenty's GitHub repository")}
+              href="https://irishpayments.ie/"
+              value={i18n._('Contact')}
+              aria-label={i18n._("Contact Irish Payments")}
             />
           </ShadowText>
         </Column>
         <Column>
           <ShadowText>
             <Link
-              href="https://docs.twenty.com/getting-started/introduction"
-              value={i18n._('User guide')}
-              aria-label={i18n._("Read Twenty's user guide")}
+              href="https://crm.irishpayments.ie/"
+              value={i18n._('CRM')}
+              aria-label={i18n._("Open UmbakCRM")}
             />
           </ShadowText>
         </Column>
         <Column>
           <ShadowText>
             <Link
-              href="https://docs.twenty.com/"
-              value={i18n._('Developers')}
-              aria-label={i18n._("Visit Twenty's developer documentation")}
+              href="https://irishpayments.ie/"
+              value={i18n._('Support')}
+              aria-label={i18n._("Get support from Irish Payments")}
             />
           </ShadowText>
         </Column>
       </Row>
       <ShadowText>
         <>
-          {i18n._('Twenty.com, Public Benefit Corporation')}
+          {i18n._('Irish Payments Ltd')}
           <br />
-          {i18n._('San Francisco / Paris')}
+          {i18n._('Ireland')}
         </>
       </ShadowText>
     </Container>
