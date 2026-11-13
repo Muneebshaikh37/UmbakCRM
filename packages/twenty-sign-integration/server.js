@@ -11,9 +11,9 @@ app.use(express.json({ limit: '1mb' }));
 
 const TWENTY_API_URL = process.env.TWENTY_API_URL || 'http://twenty-server:3000/api';
 const TWENTY_API_KEY = process.env.TWENTY_API_KEY;
-const DOCUSEAL_API_URL = process.env.DOCUSEAL_API_URL || 'http://umbak-sign:3000';
-const DOCUSEAL_API_KEY = process.env.DOCUSEAL_API_KEY;
-const WEBHOOK_SECRET = process.env.DOCUSEAL_WEBHOOK_SECRET || '';
+const IRISHSIGN_API_URL = process.env.IRISHSIGN_API_URL || 'http://umbak-sign:3000';
+const IRISHSIGN_API_KEY = process.env.IRISHSIGN_API_KEY;
+const WEBHOOK_SECRET = process.env.IRISHSIGN_WEBHOOK_SECRET || '';
 const PORT = process.env.PORT || 4001;
 
 const webhookLimiter = rateLimit({
@@ -50,16 +50,16 @@ async function twentyGraphql(query, variables) {
   return json.data;
 }
 
-async function docusealApi(method, path, body) {
+async function irishSignApi(method, path, body) {
   const options = {
     method,
     headers: {
-      'X-Auth-Token': DOCUSEAL_API_KEY,
+      'X-Auth-Token': IRISHSIGN_API_KEY,
       'Content-Type': 'application/json',
     },
   };
   if (body) options.body = JSON.stringify(body);
-  const response = await fetch(`${DOCUSEAL_API_URL}${path}`, options);
+  const response = await fetch(`${IRISHSIGN_API_URL}${path}`, options);
   return response.json();
 }
 
@@ -132,7 +132,7 @@ async function fetchCompanyData(companyId) {
   return result.company || null;
 }
 
-function buildDocuSealFields(company) {
+function buildIrishSignFields(company) {
   const mapping = [
     ['Trading Name', company.name],
     ['Registered Name', company.domainName?.primaryLinkLabel],
@@ -163,7 +163,7 @@ const EVENT_MESSAGES = {
   'form.declined': { title: 'Document Declined', note: 'Signer has declined to sign the document. Follow-up required.' },
 };
 
-app.post('/webhook/docuseal', webhookLimiter, async (req, res) => {
+app.post('/webhook/irishsign', webhookLimiter, async (req, res) => {
   try {
     if (!verifyWebhookSignature(req)) {
       console.error('Webhook signature verification failed');
@@ -212,7 +212,7 @@ app.post('/webhook/docuseal', webhookLimiter, async (req, res) => {
 
 app.post('/api/send', webhookLimiter, async (req, res) => {
   try {
-    if (!DOCUSEAL_API_KEY) {
+    if (!IRISHSIGN_API_KEY) {
       return res.status(500).json({ error: 'Umbak Sign API key not configured' });
     }
 
@@ -231,7 +231,7 @@ app.post('/api/send', webhookLimiter, async (req, res) => {
         if (!recipientEmail) recipientEmail = companyData.sellerEmail;
         if (!recipientName) recipientName = companyData.name;
         if (submissionFields.length === 0) {
-          submissionFields = buildDocuSealFields(companyData);
+          submissionFields = buildIrishSignFields(companyData);
           console.log(`Built ${submissionFields.length} fields from company ${company_id}`);
         }
       }
@@ -241,7 +241,7 @@ app.post('/api/send', webhookLimiter, async (req, res) => {
       return res.status(400).json({ error: 'email is required (or provide company_id with sellerEmail)' });
     }
 
-    const submission = await docusealApi('POST', '/api/submissions', {
+    const submission = await irishSignApi('POST', '/api/submissions', {
       template_id,
       send_email: true,
       submitters: [
@@ -288,7 +288,7 @@ app.post('/api/send', webhookLimiter, async (req, res) => {
 
 app.get('/api/templates', async (_req, res) => {
   try {
-    const templates = await docusealApi('GET', '/api/templates');
+    const templates = await irishSignApi('GET', '/api/templates');
     res.json(templates);
   } catch (err) {
     console.error('Templates fetch error:', err.message);
@@ -298,7 +298,7 @@ app.get('/api/templates', async (_req, res) => {
 
 app.get('/api/submissions/:id', async (req, res) => {
   try {
-    const submission = await docusealApi('GET', `/api/submissions/${req.params.id}`);
+    const submission = await irishSignApi('GET', `/api/submissions/${req.params.id}`);
     res.json(submission);
   } catch (err) {
     console.error('Submission fetch error:', err.message);
