@@ -65,6 +65,26 @@ async function irishSignApi(method, path, body) {
   return response.json();
 }
 
+async function attachSignedDocumentToCompany(companyId, submissionId, documentUrls) {
+  const docLinks = documentUrls
+    .map((url, i) => `- [Signed Document ${i + 1}](${url})`)
+    .join('\n');
+
+  const signUrl = `${IRISHSIGN_API_URL}/submissions/${submissionId}`;
+
+  const noteBody = [
+    `**Submission ID:** ${submissionId}`,
+    '',
+    'All parties have signed. Signed documents:',
+    docLinks,
+    '',
+    `[View in Umbak Sign](${signUrl})`,
+  ].join('\n');
+
+  await createNoteForCompany(companyId, 'Umbak Sign: Signed Document Attached', noteBody);
+  console.log(`Attached ${documentUrls.length} signed document link(s) for company ${companyId}`);
+}
+
 async function createNoteForCompany(companyId, title, body) {
   const result = await twentyGraphql(
     `mutation CreateNote($input: NoteCreateInput!) {
@@ -203,6 +223,25 @@ app.post('/webhook/irishsign', webhookLimiter, async (req, res) => {
 
       await createNoteForCompany(company.id, `Umbak Sign: ${msg.title}`, noteBody);
       console.log(`Created note for company ${company.name} (${company.id})`);
+
+      if (event_type === 'form.completed') {
+        try {
+          const submission = await irishSignApi('GET', `/api/submissions/${data.submission_id}`);
+          const documentUrls = [];
+          if (submission.combined_document_url) {
+            documentUrls.push(submission.combined_document_url);
+          } else if (submission.documents && submission.documents.length > 0) {
+            for (const doc of submission.documents) {
+              if (doc.url) documentUrls.push(doc.url);
+            }
+          }
+          if (documentUrls.length > 0) {
+            await attachSignedDocumentToCompany(company.id, data.submission_id, documentUrls);
+          }
+        } catch (docErr) {
+          console.error('Signed document attachment error:', docErr.message);
+        }
+      }
     }
 
     res.json({ status: 'ok' });
