@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(express.json({ limit: '1mb' }));
 
@@ -47,6 +48,7 @@ async function twentyGraphql(query, variables) {
   });
   const json = await response.json();
   if (json.errors && json.errors.length > 0) {
+    console.error('GraphQL error:', JSON.stringify(json.errors[0]));
     throw new Error(json.errors[0].message);
   }
   return json.data;
@@ -129,29 +131,46 @@ async function findCompanyByEmail(email) {
 }
 
 async function fetchCompanyData(companyId) {
-  const result = await twentyGraphql(
-    `query GetCompany($id: ID!) {
-      company(id: $id) {
-        name
-        domainName { primaryLinkLabel }
-        address { addressStreet1 }
-        croNumber
-        vatNumber
-        industrySector
-        sellerEmail
-        hardwareRequirement
-        softwareRequirement
-        softwareLicence
-        paymentProcessing
-        preferredOs
-        numberOfLocations
-        usersPerLocation
-        installationCost
-      }
-    }`,
-    { id: companyId }
-  );
-  return result.company || null;
+  try {
+    const result = await twentyGraphql(
+      `query GetCompany($objectRecordId: UUID!) {
+        company(filter: { id: { eq: $objectRecordId } }) {
+          id
+          name
+          domainName { primaryLinkLabel }
+          address { addressStreet1 }
+          croNumber
+          vatNumber
+          industrySector
+          sellerEmail
+          hardwareRequirement
+          softwareRequirement
+          softwareLicence
+          paymentProcessing
+          preferredOs
+          numberOfLocations
+          usersPerLocation
+          installationCost
+        }
+      }`,
+      { objectRecordId: companyId }
+    );
+    return result.company || null;
+  } catch (err) {
+    console.error('Full company query failed, trying standard fields only:', err.message);
+    const result = await twentyGraphql(
+      `query GetCompany($objectRecordId: UUID!) {
+        company(filter: { id: { eq: $objectRecordId } }) {
+          id
+          name
+          domainName { primaryLinkLabel }
+          address { addressStreet1 }
+        }
+      }`,
+      { objectRecordId: companyId }
+    );
+    return result.company || null;
+  }
 }
 
 function buildIrishSignFields(company) {
