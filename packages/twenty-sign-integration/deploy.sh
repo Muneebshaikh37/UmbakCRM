@@ -21,8 +21,8 @@ echo "  Done."
 # Step 2: Environment variables
 echo ""
 echo "[2/7] Environment setup"
-if grep -q "DOCUSEAL_API_KEY" .env 2>/dev/null; then
-  echo "  DocuSeal env vars already in .env, skipping."
+if grep -q "IRISHSIGN_API_KEY" .env 2>/dev/null; then
+  echo "  Irish Sign env vars already in .env, skipping."
 else
   echo "  You need:"
   echo "    - Umbak Sign API key (Settings > API in Umbak Sign)"
@@ -33,8 +33,8 @@ else
   sudo tee -a .env > /dev/null <<EOF
 
 # Umbak Sign integration
-DOCUSEAL_API_KEY=${SIGN_KEY}
-DOCUSEAL_WEBHOOK_SECRET=${WEBHOOK_SECRET}
+IRISHSIGN_API_KEY=${SIGN_KEY}
+IRISHSIGN_WEBHOOK_SECRET=${WEBHOOK_SECRET}
 EOF
   echo "  Added to .env"
 fi
@@ -76,9 +76,9 @@ else
     environment:\
       TWENTY_API_URL: http://twenty-server:3000/api\
       TWENTY_API_KEY: ${TWENTY_FORM_API_KEY}\
-      DOCUSEAL_API_URL: http://umbak-sign:3000\
-      DOCUSEAL_API_KEY: ${DOCUSEAL_API_KEY}\
-      DOCUSEAL_WEBHOOK_SECRET: ${DOCUSEAL_WEBHOOK_SECRET}\
+      IRISHSIGN_API_URL: http://umbak-sign:3000\
+      IRISHSIGN_API_KEY: ${IRISHSIGN_API_KEY}\
+      IRISHSIGN_WEBHOOK_SECRET: ${IRISHSIGN_WEBHOOK_SECRET}\
       PORT: "4001"\
     restart: unless-stopped\
     depends_on:\
@@ -157,13 +157,13 @@ echo "========================================="
 echo "  Deploy complete!"
 echo ""
 echo "  Umbak Sign:  https://crm.irishpayments.ie/sign"
-echo "  Webhook URL:  https://crm.irishpayments.ie/sign-webhook/webhook/docuseal"
+echo "  Webhook URL:  https://crm.irishpayments.ie/sign-webhook/webhook/irishsign"
 echo ""
 echo "  Next steps:"
 echo "  1. Open Umbak Sign and complete initial setup"
 echo "  2. Go to Settings > API and create an API key"
 echo "  3. Go to Settings > Webhooks and add:"
-echo "     URL: https://crm.irishpayments.ie/sign-webhook/webhook/docuseal"
+echo "     URL: https://crm.irishpayments.ie/sign-webhook/webhook/irishsign"
 echo "     Events: form.completed, form.started, form.viewed, form.declined"
 echo "  4. Update .env with the API key and webhook secret"
 echo "  5. Restart: sudo docker compose restart twenty-sign-bridge"

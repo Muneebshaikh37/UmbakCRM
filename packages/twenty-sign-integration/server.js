@@ -14,6 +14,8 @@ const TWENTY_API_KEY = process.env.TWENTY_API_KEY;
 const IRISHSIGN_API_URL = process.env.IRISHSIGN_API_URL || 'http://umbak-sign:3000';
 const IRISHSIGN_API_KEY = process.env.IRISHSIGN_API_KEY;
 const WEBHOOK_SECRET = process.env.IRISHSIGN_WEBHOOK_SECRET || '';
+const UMBAK_SIGNER_EMAIL = process.env.UMBAK_SIGNER_EMAIL || 'muneeb.shaikh@irishpayments.ie';
+const UMBAK_SIGNER_NAME = process.env.UMBAK_SIGNER_NAME || 'Umbak Technologies Ltd';
 const PORT = process.env.PORT || 4001;
 
 const webhookLimiter = rateLimit({
@@ -153,7 +155,7 @@ function buildIrishSignFields(company) {
 
   return mapping
     .filter(([, value]) => value)
-    .map(([name, default_value]) => ({ name, default_value: String(default_value) }));
+    .map(([name, default_value]) => ({ name, default_value: String(default_value), readonly: true }));
 }
 
 const EVENT_MESSAGES = {
@@ -241,44 +243,65 @@ app.post('/api/send', webhookLimiter, async (req, res) => {
       return res.status(400).json({ error: 'email is required (or provide company_id with sellerEmail)' });
     }
 
+    const today = new Date().toLocaleDateString('en-IE');
+    const umbakSignatureFields = [
+      { name: 'Umbak Print Name', default_value: UMBAK_SIGNER_NAME, readonly: true },
+      { name: 'Umbak Title', default_value: 'Director', readonly: true },
+      { name: 'Umbak Date', default_value: today, readonly: true },
+    ];
+
+    const submitters = [
+      {
+        role: 'First Party',
+        email: UMBAK_SIGNER_EMAIL,
+        name: UMBAK_SIGNER_NAME,
+        fields: [...submissionFields, ...umbakSignatureFields],
+        send_email: true,
+      },
+      {
+        role: 'Second Party',
+        email: recipientEmail,
+        name: recipientName || recipientEmail,
+        fields: [
+          { name: 'Customer Print Name', default_value: recipientName || recipientEmail, readonly: true },
+          { name: 'Customer Title', default_value: 'Authorised Signatory', readonly: true },
+          { name: 'Customer Date', default_value: today, readonly: true },
+        ],
+        send_email: true,
+      },
+    ];
+
     const submission = await irishSignApi('POST', '/api/submissions', {
       template_id,
       send_email: true,
-      submitters: [
-        {
-          role: role || 'First Party',
-          email: recipientEmail,
-          name: recipientName || recipientEmail,
-          fields: submissionFields,
-        },
-      ],
+      order: 'preserved',
+      submitters,
     });
 
-    const submitters = Array.isArray(submission) ? submission : [];
-    const firstSubmitter = submitters[0];
-    const submissionId = firstSubmitter?.submission_id || 'unknown';
-    const signingUrl = firstSubmitter?.embed_src || null;
+    const responseSubmitters = Array.isArray(submission) ? submission : [];
+    const umbakSubmitter = responseSubmitters[0];
+    const customerSubmitter = responseSubmitters[1];
+    const submissionId = umbakSubmitter?.submission_id || 'unknown';
 
     if (company_id) {
       await createNoteForCompany(
         company_id,
-        'Umbak Sign: Document Sent',
+        'Umbak Sign: Contract Sent',
         [
           `**Template ID:** ${template_id}`,
-          `**Sent to:** ${recipientName || recipientEmail} (${recipientEmail})`,
+          `**Step 1:** ${UMBAK_SIGNER_NAME} (${UMBAK_SIGNER_EMAIL}) signs first`,
+          `**Step 2:** ${recipientName || recipientEmail} (${recipientEmail}) signs after`,
           `**Submission ID:** ${submissionId}`,
-          signingUrl ? `**Signing Link:** ${signingUrl}` : null,
           '',
-          'Document has been sent for signing via Umbak Sign.',
-        ].filter(Boolean).join('\n')
+          'Contract sent for two-party signing. Customer receives it after Umbak signs.',
+        ].join('\n')
       );
     }
 
     res.json({
       success: true,
       submission_id: submissionId,
-      signing_url: signingUrl,
-      submitters,
+      submitters: responseSubmitters,
     });
   } catch (err) {
     console.error('Send error:', err.message);
