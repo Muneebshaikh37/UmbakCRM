@@ -46,7 +46,15 @@ async function twentyGraphql(query, variables) {
     },
     body: JSON.stringify({ query, variables }),
   });
-  const json = await response.json();
+  const text = await response.text();
+  console.log('GraphQL response status:', response.status);
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (parseErr) {
+    console.error('GraphQL response not JSON:', text.slice(0, 500));
+    throw new Error('GraphQL returned non-JSON response');
+  }
   if (json.errors && json.errors.length > 0) {
     console.error('GraphQL error:', JSON.stringify(json.errors[0]));
     throw new Error(json.errors[0].message);
