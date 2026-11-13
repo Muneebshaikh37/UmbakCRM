@@ -1,0 +1,16 @@
+{
+  "name": "twenty-sign-integration",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Webhook bridge between Twenty CRM and Umbak Sign (DocuSeal)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "node-fetch": "^2.7.0",
+    "helmet": "^8.0.0",
+    "express-rate-limit": "^7.4.0"
+  }
+}
